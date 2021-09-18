@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试迷你redux</title>
+</head>
+<body>
+  <div>
+    <button onclick="increment()">+</button>
+    <span id="value">0</span>
+    <button onclick="decrement()">-</button>
+  </div>
+  <script src="./index.js"></script>
+  <script>
+    function enhancer(createStore) {
+      return function(reducer, defaultState) {
+        var store = createStore(reducer, defaultState);
+        function dispatch(action) {
+          if (typeof action === 'function') {
+            return action(store.dispatch);
+          }
+          return store.dispatch(action);
+        }
+        return {
+          ...store,
+          dispatch,
+        };
+      }
+    }
+    const counterRecuder = (state, action) => {
+      switch (action.type) {
+        case 'increment':
+          return {
+            count: state.counter.count + action.payload,
+          }
+        case 'decrement': 
+          return {
+            count: state.counter.count - action.payload,
+          }
+        default:
+          return state;
+      }
+    }
+    const reducer = combineReducer({
+      counter: counterRecuder
+    })
+    const defaultState = {
+      counter: {
+        count: 0,
+      }
+    }
+    const store = createStore(reducer, defaultState, applyMiddleware(logger, thunk));
+
+    var actions = bindActionCreators({increment: incrementAction, decrement: decrementAction}, store.dispatch)
+    function incrementAction() {
+      return (dispatch) => {
+        setTimeout(() => {
+          // logger -> thunk -> dispatch
+          dispatch({
+            type: 'increment',
+            payload: 5,
+          })
+        }, 2000)
+      }
+    }
+    function decrementAction() {
+      return { type: 'decrement', payload: 5 }
+    }
+    function increment() {
+      actions.increment();
+    }
+    function decrement() {
+      actions.decrement();
+      // store.dispatch({
+      //   type: 'decrement'
+      // })
+    }
+    store.subscribe(() => {
+      document.getElementById('value').innerHTML = store.getState().counter.count;
+    })
+
+  </script>
+</body>
+</html>
