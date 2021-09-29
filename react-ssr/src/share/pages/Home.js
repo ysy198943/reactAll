@@ -6,6 +6,7 @@ function Home() {
     <div>
       Home
       <Link to='/list'>跳转</Link>
+      <button onClick={() => alert(1)}>点击</button>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import { renderToString } from "react-dom/server"
+// 服务器端路由配置
 import { StaticRouter } from "react-router-dom";
 import routes from "../share/routes";
 import { renderRoutes } from "react-router-config";
@@ -10,11 +11,12 @@ import serialize from 'serialize-javascript'
 export default (req, store) => {
   const content = renderToString(
     <Provider store={store}>
-      <StaticRouter location={req.path}>
+      <StaticRouter location={req.path}> 
         {renderRoutes(routes)}
       </StaticRouter>
     </Provider>
   )
+  // 将服务器端获取到的组件回填数据缓存下来，以便客户端创建store时使用
   const state = serialize(store.getState());
   return `
     <html>
